@@ -7,12 +7,13 @@ import geopandas as pgd
 from matplotlib import pyplot as pp
 import plotly.express as px
 import datetime as dt 
+import plotly.graph_objects as go
 
 
 ### These parameters are for filtering the data. This should be 
 #handled better, but I'm hard coding for now.
 
-plotmap = False
+plotmap = True
 #During the 10/2013 eclipse, right after launch, GPS was bounding all over the place, so 
 #we filter out the beginning of the flight in addition to other nonsense (lon > -106.6822)
 minlon = -106.6822
@@ -24,10 +25,12 @@ R = 6371.e3 # Radius of Earth in meters
 mm_to_m=0.001
 
 file = 'data/RFD900_MIEMU_101423_1439_2.csv'
+file = 'data/PTER_MIEMU_040824_1726.csv'
+
 crs = {'init':'epsg:4326'}
 data = pd.read_csv(file)
 
-
+breakpoint()
 data['Latitude'] = data['Latitude']/1e7
 data['Longitude'] = data['Longitude']/1e7
 data['Altitude'] = data['Altitude']/1e6
@@ -52,9 +55,29 @@ if plotmap:
                             zoom=8, 
                             height=800,
                             width=800)
-
     fig.update_layout(mapbox_style="open-street-map")
     fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    point1 = ascent[ascent['Altitude']>12].iloc[0]
+    lat1 = point1['Latitude']
+    lon1 = point1['Longitude']
+    fig.add_trace(go.Scattermapbox(
+        lat=[lat1],
+        lon=[lon1],
+        mode='markers',
+        marker={'size':10,'color':'springgreen'}
+    ))
+
+    point2 = ascent[ascent['Altitude']>24].iloc[0]
+    lat2 = point2['Latitude']
+    lon2 = point2['Longitude']
+    fig.add_trace(go.Scattermapbox(
+        lat=[lat2],
+        lon=[lon2],
+        mode='markers',
+        marker={'size':10,'color':'red'}
+    ))
+
     fig.show()
 
 time = []
@@ -93,3 +116,4 @@ pp.xlabel('Veloctiy (m/s)')
 pp.ylabel('Altitude (km)')
 pp.savefig('plot.png')
 
+# breakpoint()
